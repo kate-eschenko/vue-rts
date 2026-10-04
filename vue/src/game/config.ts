@@ -6,11 +6,6 @@ export const MAP = { width: 3000, height: 2000, cell: 50 }
 // edgePx - зона у края экрана, где камера начинает двигаться
 export const CAMERA = { speedPxPerSecond: 500, edgePx: 50 }
 
-export const MILLIS_IN_SECOND = 1000
-
-// максимум секунд на один кадр, чтобы юниты не телепортировались
-export const MAX_FRAME_SECONDS = 0.1
-
 export const OBJECT_TYPES: Record<string, ObjectType> = {
   house: { name: 'Дом', width: 100, height: 70, color: '#a16207' },
   tree: { name: 'Дерево', width: 30, height: 80, color: '#00ff00' },

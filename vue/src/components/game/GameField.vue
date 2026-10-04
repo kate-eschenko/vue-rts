@@ -17,7 +17,7 @@
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import GameStaticObject from './GameStaticObject.vue'
 import GameUnit from './GameUnit.vue'
-import { CAMERA, MAP, MAX_FRAME_SECONDS, MILLIS_IN_SECOND, START_OBJECTS, START_UNITS, UNIT_TYPES } from '@/game/config'
+import { CAMERA, MAP, START_OBJECTS, START_UNITS, UNIT_TYPES } from '@/game/config'
 import type { Point, StaticObject, Unit } from '@/game/types'
 
 const selected = defineModel<StaticObject | Unit | null>('selected', { default: null })
@@ -56,10 +56,13 @@ const worldStyle = computed(() => ({
 
 const targetStyle = computed(() => {
   const target = selectedUnit.value?.target
-  if (!target) return {}
-  return {
-    left: target.x + MAP.width / 2 + 'px',
-    top: target.y + MAP.height / 2 + 'px',
+  if (target) {
+    return {
+      left: target.x + MAP.width / 2 + 'px',
+      top: target.y + MAP.height / 2 + 'px',
+    }
+  } else {
+    return {}
   }
 })
 
@@ -144,6 +147,11 @@ function moveUnits(secondsPassed: number) {
 let frameId = 0
 let lastTime = 0
 
+const MILLIS_IN_SECOND = 1000
+
+// максимум секунд на один кадр, чтобы юниты не телепортировались
+const MAX_FRAME_SECONDS = 0.1
+
 //  чтобы было плавное перемещение без телепорта
 function tick(time: number) {
   // считаем сколько секунд прошло с прошлого кадра
@@ -186,8 +194,8 @@ onUnmounted(() => {
   top: 50%;
   background-color: #4a7c3a;
   background-image:
-    linear-gradient(to right, rgba(0, 0, 0, 0.15) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.15) 1px, transparent 1px);
+    linear-gradient(to right, rgba(0, 0, 0, 0.2) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 1px, transparent 1px);
 }
 
 .target-mark {

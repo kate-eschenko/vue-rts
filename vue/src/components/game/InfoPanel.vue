@@ -2,12 +2,12 @@
 
   <div class="info-panel">
     <template v-if="selected">
-      <div class="name">{{ name }}</div>
+      <div class="name">{{ typeName }}</div>
       <div>ID: {{ selected.id }}</div>
       <div>Координаты: {{ Math.round(selected.x) }}, {{ Math.round(selected.y) }}</div>
       <template v-if="unit">
-        <div>Скорость: {{ UNIT_TYPES[unit.type].speedPxPerSecond }}</div>
-        <div>{{ unit.target ? 'Идёт' : 'Стоит' }}</div>
+        <div>Скорость: {{ unitSpeed }}</div>
+        <div>{{ unitAction }}</div>
       </template>
     </template>
     <template v-else>
@@ -42,7 +42,7 @@ const unit = computed(() => {
 })
 
 // определяем имя объекта для отображения
-const name = computed(() => {
+const typeName = computed(() => {
   if (unit.value) {
     return UNIT_TYPES[unit.value.type].name
   }
@@ -51,6 +51,24 @@ const name = computed(() => {
   }
   return ''
 })
+
+const unitSpeed = computed(() => {
+  if (unit.value) {
+    return UNIT_TYPES[unit.value.type].speedPxPerSecond
+  }
+})
+
+const unitAction = computed(() => {
+  if (unit.value) {
+    if (unit.value.target) {
+      return 'Движется'
+    }
+    else {
+      return 'Стоит'
+    }
+  }
+})
+
 </script>
 
 
