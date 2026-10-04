@@ -24,13 +24,10 @@ const selected = defineModel<StaticObject | Unit | null>('selected', { default: 
 
 const screenView = ref<HTMLElement | null>(null)
 
-// Точка, которая сейчас в центре экрана
 const camera = reactive({ x: 0, y: 0 })
 
-// Позиция курсора внутри поля, нужна для движения камеры по полю
 const mouse = { x: 0, y: 0, inside: false }
 
-// Копируем, чтобы движение юнитов не меняло исходный конфиг
 const objects = ref<StaticObject[]>(structuredClone(START_OBJECTS))
 const units = ref<Unit[]>(structuredClone(START_UNITS))
 
@@ -66,7 +63,7 @@ const targetStyle = computed(() => {
   }
 })
 
-// Перевод координат курсора на экране в координаты мира
+// Перевод координат курсора на экране в мировые координаты
 function toWorld(e: MouseEvent): Point {
   const rect = screenView.value!.getBoundingClientRect()
   return {
