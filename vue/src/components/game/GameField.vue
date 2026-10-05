@@ -1,7 +1,7 @@
 <template>
 
-  <div ref="screenView" class="screen-view" @mousedown.left="selected = null" @contextmenu.prevent="moveSelected"
-       @mousemove="saveMouse" @mouseleave="resetMouse">
+  <div ref="screenView" class="screen-view" @mousedown.left="selected = null" @mousedown.middle.prevent="startDrag"
+     @contextmenu.prevent="moveSelected" @mousemove="saveMouse" @mouseleave="resetMouse">
 
     <div class="world" :style="worldStyle">
       <GameStaticObject v-for="o in objects" :key="o.id" :object="o" :selected="o === selected" @select="selected = o"/>
@@ -19,6 +19,11 @@ import GameStaticObject from './GameStaticObject.vue'
 import GameUnit from './GameUnit.vue'
 import { CAMERA, MAP, START_OBJECTS, START_UNITS, UNIT_TYPES } from '@/game/config'
 import type { Point, StaticObject, Unit } from '@/game/types'
+
+// перетаскивание камеры средней кнопкой мыши
+let dragging = false
+let lastX = 0
+let lastY = 0
 
 const selected = defineModel<StaticObject | Unit | null>('selected', { default: null })
 
@@ -96,10 +101,40 @@ function moveSelected(e: MouseEvent) {
   }
 }
 
-function moveCamera(secondsPassed: number) {
-  if (!screenView.value || !mouse.inside) {
+function clampCamera() {
+  camera.x = Math.max(-MAP.width / 2, Math.min(MAP.width / 2, camera.x))
+  camera.y = Math.max(-MAP.height / 2, Math.min(MAP.height / 2, camera.y))
+}
+
+function startDrag(e: MouseEvent) {
+  dragging = true
+  lastX = e.clientX
+  lastY = e.clientY
+}
+
+function onWindowMouseMove(e: MouseEvent) {
+  if (!dragging) {
     return
   }
+  // карта едет за курсором, поэтому камера смещается в обратную сторону
+  camera.x -= e.clientX - lastX
+  camera.y -= e.clientY - lastY
+  lastX = e.clientX
+  lastY = e.clientY
+  clampCamera()
+}
+
+function onWindowMouseUp(e: MouseEvent) {
+  if (e.button === 1) {
+    dragging = false
+  }
+}
+
+function moveCamera(secondsPassed: number) {
+  if (!screenView.value || !mouse.inside || dragging) {
+    return
+  }
+
   const width = screenView.value.clientWidth
   const height = screenView.value.clientHeight
   const step = CAMERA.speedPxPerSecond * secondsPassed
@@ -117,8 +152,7 @@ function moveCamera(secondsPassed: number) {
     camera.y += step
   }
 
-  camera.x = Math.max(-MAP.width / 2, Math.min(MAP.width / 2, camera.x))
-  camera.y = Math.max(-MAP.height / 2, Math.min(MAP.height / 2, camera.y))
+  clampCamera()
 }
 
 function moveUnits(secondsPassed: number) {
@@ -165,11 +199,15 @@ function tick(time: number) {
 onMounted(() => {
   lastTime = performance.now()
   frameId = requestAnimationFrame(tick)
+  window.addEventListener('mousemove', onWindowMouseMove)
+  window.addEventListener('mouseup', onWindowMouseUp)
 })
 
 // если ушли со страницы игры - останавливаем цикл
 onUnmounted(() => {
   cancelAnimationFrame(frameId)
+  window.removeEventListener('mousemove', onWindowMouseMove)
+  window.removeEventListener('mouseup', onWindowMouseUp)
 })
 
 </script>
