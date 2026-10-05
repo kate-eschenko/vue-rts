@@ -153,8 +153,6 @@ function moveCamera(secondsPassed: number) {
   }
 
   clampCamera()
-  //camera.x = Math.max(-MAP.width / 2, Math.min(MAP.width / 2, camera.x))
-  //camera.y = Math.max(-MAP.height / 2, Math.min(MAP.height / 2, camera.y))
 }
 
 function moveUnits(secondsPassed: number) {
