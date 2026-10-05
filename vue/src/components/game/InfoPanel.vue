@@ -1,5 +1,4 @@
 <template>
-
   <div class="info-panel">
     <template v-if="selected">
       <div class="name">{{ typeName }}</div>
@@ -17,11 +16,9 @@
       <div>Зажать колёсико — двигать камеру</div>
     </template>
   </div>
-
 </template>
 
 <script setup lang="ts">
-
 import { computed } from 'vue'
 import { OBJECT_TYPES, UNIT_TYPES } from '@/game/config'
 import type { StaticObject, Unit } from '@/game/types'
@@ -69,12 +66,9 @@ const unitAction = computed(() => {
     }
   }
 })
-
 </script>
 
-
 <style scoped>
-
 .info-panel {
   position: absolute;
   left: 30px;
@@ -90,5 +84,4 @@ const unitAction = computed(() => {
 .name {
   font-weight: bold;
 }
-
 </style>

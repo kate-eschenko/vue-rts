@@ -1,11 +1,13 @@
 <template>
-
-  <div class="unit" :class="{ selected }" :style="style" @mousedown.left.stop="emit('select')"/>
-
+  <div
+      class="unit"
+      :class="{ selected }"
+      :style="style"
+      @mousedown.left.stop="emit('select')"
+  />
 </template>
 
 <script setup lang="ts">
-
 import { computed } from 'vue'
 import { MAP, UNIT_TYPES } from '@/game/config'
 import type { Unit } from '@/game/types'
@@ -30,11 +32,9 @@ const style = computed(() => {
     background: type.color,
   }
 })
-
 </script>
 
 <style scoped>
-
 .unit {
   position: absolute;
   border-radius: 50%;
@@ -45,5 +45,4 @@ const style = computed(() => {
 .selected {
   border-color: #fff;
 }
-
 </style>

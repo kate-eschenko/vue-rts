@@ -1,11 +1,12 @@
 <template>
-
-  <div class="static-object" :class="{ selected }" :style="style" @mousedown.left.stop="emit('select')"/>
-
+  <div
+      class="static-object"
+      :class="{ selected }"
+      :style="style"
+      @mousedown.left.stop="emit('select')"/>
 </template>
 
 <script setup lang="ts">
-
 import { computed } from 'vue'
 import { MAP, OBJECT_TYPES } from '@/game/config'
 import type { StaticObject } from '@/game/types'
@@ -34,7 +35,6 @@ const style = computed(() => {
 </script>
 
 <style scoped>
-
 .static-object {
   position: absolute;
   border: 2px solid rgba(0, 0, 0, 1);

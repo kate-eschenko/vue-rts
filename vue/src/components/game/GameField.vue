@@ -1,19 +1,38 @@
 <template>
-
-  <div ref="screenView" class="screen-view" @mousedown.left="selected = null" @mousedown.middle.prevent="startDrag"
-     @contextmenu.prevent="moveSelected" @mousemove="saveMouse" @mouseleave="resetMouse">
+  <div
+      ref="screenView"
+      class="screen-view"
+      @mousedown.left="selected = null"
+      @mousedown.middle.prevent="(event) => startDrag(event)"
+      @contextmenu.prevent="(event) => moveSelected(event)"
+      @mousemove="(event) => saveMouse(event)"
+      @mouseleave="() => resetMouse()">
 
     <div class="world" :style="worldStyle">
-      <GameStaticObject v-for="o in objects" :key="o.id" :object="o" :selected="o === selected" @select="selected = o"/>
-      <GameUnit v-for="u in units" :key="u.id" :unit="u" :selected="u === selected" @select="selected = u"/>
-      <div v-if="selectedUnit?.target" class="target-mark" :style="targetStyle" />
+      <GameStaticObject
+          v-for="o in objects"
+          :key="o.id"
+          :object="o"
+          :selected="o === selected"
+          @select="selected = o"/>
+
+      <GameUnit
+          v-for="u in units"
+          :key="u.id"
+          :unit="u"
+          :selected="u === selected"
+          @select="selected = u"/>
+
+      <div
+          v-if="selectedUnit?.target"
+          class="target-mark"
+          :style="targetStyle" />
+
     </div>
   </div>
-
 </template>
 
 <script setup lang="ts">
-
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import GameStaticObject from './GameStaticObject.vue'
 import GameUnit from './GameUnit.vue'
@@ -26,13 +45,9 @@ let lastX = 0
 let lastY = 0
 
 const selected = defineModel<StaticObject | Unit | null>('selected', { default: null })
-
 const screenView = ref<HTMLElement | null>(null)
-
 const camera = reactive({ x: 0, y: 0 })
-
 const mouse = { x: 0, y: 0, inside: false }
-
 const objects = ref<StaticObject[]>(structuredClone(START_OBJECTS))
 const units = ref<Unit[]>(structuredClone(START_UNITS))
 
@@ -68,8 +83,7 @@ const targetStyle = computed(() => {
   }
 })
 
-// Перевод координат курсора на экране в мировые координаты
-function toWorld(e: MouseEvent): Point {
+const toWorld = (e: MouseEvent): Point => {
   const rect = screenView.value!.getBoundingClientRect()
   return {
     x: e.clientX - rect.left - rect.width / 2 + camera.x,
@@ -77,7 +91,7 @@ function toWorld(e: MouseEvent): Point {
   }
 }
 
-function saveMouse(e: MouseEvent) {
+const saveMouse = (e: MouseEvent) => {
   // окно ввода на странице и его размер
   const rect = screenView.value!.getBoundingClientRect()
   mouse.x = e.clientX - rect.left
@@ -85,11 +99,11 @@ function saveMouse(e: MouseEvent) {
   mouse.inside = true
 }
 
-function resetMouse() {
+const resetMouse = () => {
   mouse.inside = false
 }
 
-function moveSelected(e: MouseEvent) {
+const moveSelected = (e: MouseEvent) => {
   if (!selectedUnit.value) {
     return
   }
@@ -101,22 +115,21 @@ function moveSelected(e: MouseEvent) {
   }
 }
 
-function clampCamera() {
+const clampCamera = () => {
   camera.x = Math.max(-MAP.width / 2, Math.min(MAP.width / 2, camera.x))
   camera.y = Math.max(-MAP.height / 2, Math.min(MAP.height / 2, camera.y))
 }
 
-function startDrag(e: MouseEvent) {
+const startDrag = (e: MouseEvent) => {
   dragging = true
   lastX = e.clientX
   lastY = e.clientY
 }
 
-function onWindowMouseMove(e: MouseEvent) {
+const onWindowMouseMove = (e: MouseEvent) => {
   if (!dragging) {
     return
   }
-  // карта едет за курсором, поэтому камера смещается в обратную сторону
   camera.x -= e.clientX - lastX
   camera.y -= e.clientY - lastY
   lastX = e.clientX
@@ -124,13 +137,13 @@ function onWindowMouseMove(e: MouseEvent) {
   clampCamera()
 }
 
-function onWindowMouseUp(e: MouseEvent) {
+const onWindowMouseUp = (e: MouseEvent) => {
   if (e.button === 1) {
     dragging = false
   }
 }
 
-function moveCamera(secondsPassed: number) {
+const moveCamera = (secondsPassed: number) => {
   if (!screenView.value || !mouse.inside || dragging) {
     return
   }
@@ -155,7 +168,7 @@ function moveCamera(secondsPassed: number) {
   clampCamera()
 }
 
-function moveUnits(secondsPassed: number) {
+const moveUnits = (secondsPassed: number) => {
   for (const u of units.value) {
     if (u.target) {
       const dx = u.target.x - u.x
@@ -179,13 +192,9 @@ let frameId = 0
 let lastTime = 0
 
 const MILLIS_IN_SECOND = 1000
-
-// максимум секунд на один кадр, чтобы юниты не телепортировались
 const MAX_FRAME_SECONDS = 0.1
 
-//  чтобы было плавное перемещение без телепорта
-function tick(time: number) {
-  // считаем сколько секунд прошло с прошлого кадра
+const tick = (time: number) => {
   const secondsPassed = Math.min((time - lastTime) / MILLIS_IN_SECOND, MAX_FRAME_SECONDS)
   lastTime = time
 
@@ -209,11 +218,9 @@ onUnmounted(() => {
   window.removeEventListener('mousemove', onWindowMouseMove)
   window.removeEventListener('mouseup', onWindowMouseUp)
 })
-
 </script>
 
 <style scoped>
-
 .screen-view {
   position: relative;
   width: 100%;
@@ -242,5 +249,4 @@ onUnmounted(() => {
   border-radius: 50%;
   pointer-events: none;
 }
-
 </style>
